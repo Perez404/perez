@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="Хранилище furnitureModelContainer" CdmEntityContainer="Entities">
+    <EntitySetMapping Name="Material">
+      <EntityTypeMapping TypeName="furnitureModel.Material">
+        <MappingFragment StoreEntitySet="Material">
+          <ScalarProperty Name="MaterialId" ColumnName="MaterialId" />
+          <ScalarProperty Name="MaterialName" ColumnName="MaterialName" />
+          <ScalarProperty Name="MaterialTypeId" ColumnName="MaterialTypeId" />
+          <ScalarProperty Name="MaterialUnitPrice" ColumnName="MaterialUnitPrice" />
+          <ScalarProperty Name="MaterialQuanityInStock" ColumnName="MaterialQuanityInStock" />
+          <ScalarProperty Name="MaterialMinQuantity" ColumnName="MaterialMinQuantity" />
+          <ScalarProperty Name="MaterialQuantityInPack" ColumnName="MaterialQuantityInPack" />
+          <ScalarProperty Name="MaterialMeasUnitId" ColumnName="MaterialMeasUnitId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MaterialProduct">
+      <EntityTypeMapping TypeName="furnitureModel.MaterialProduct">
+        <MappingFragment StoreEntitySet="MaterialProduct">
+          <ScalarProperty Name="MaterialProductId" ColumnName="MaterialProductId" />
+          <ScalarProperty Name="MaterialId" ColumnName="MaterialId" />
+          <ScalarProperty Name="ProductId" ColumnName="ProductId" />
+          <ScalarProperty Name="MaterialQuantityNeeded" ColumnName="MaterialQuantityNeeded" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MaterialType">
+      <EntityTypeMapping TypeName="furnitureModel.MaterialType">
+        <MappingFragment StoreEntitySet="MaterialType">
+          <ScalarProperty Name="MaterialTypeId" ColumnName="MaterialTypeId" />
+          <ScalarProperty Name="MaterialTypeName" ColumnName="MaterialTypeName" />
+          <ScalarProperty Name="MaterialTypeRawMatSpent" ColumnName="MaterialTypeRawMatSpent" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MeasUnit">
+      <EntityTypeMapping TypeName="furnitureModel.MeasUnit">
+        <MappingFragment StoreEntitySet="MeasUnit">
+          <ScalarProperty Name="MeasUnitId" ColumnName="MeasUnitId" />
+          <ScalarProperty Name="MeasUnitName" ColumnName="MeasUnitName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Product">
+      <EntityTypeMapping TypeName="furnitureModel.Product">
+        <MappingFragment StoreEntitySet="Product">
+          <ScalarProperty Name="ProductId" ColumnName="ProductId" />
+          <ScalarProperty Name="ProductTypeId" ColumnName="ProductTypeId" />
+          <ScalarProperty Name="ProductName" ColumnName="ProductName" />
+          <ScalarProperty Name="ProductNumber" ColumnName="ProductNumber" />
+          <ScalarProperty Name="ProductMinPriceForPartner" ColumnName="ProductMinPriceForPartner" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ProductType">
+      <EntityTypeMapping TypeName="furnitureModel.ProductType">
+        <MappingFragment StoreEntitySet="ProductType">
+          <ScalarProperty Name="ProductTypeId" ColumnName="ProductTypeId" />
+          <ScalarProperty Name="ProductTypeName" ColumnName="ProductTypeName" />
+          <ScalarProperty Name="ProductTypeCoefficient" ColumnName="ProductTypeCoefficient" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

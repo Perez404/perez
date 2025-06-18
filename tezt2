@@ -1,0 +1,504 @@
+модель БД
+Material.cs
+MaterialProduct.cs
+MaterialType.cs
+(ModelMaterial.cs)
+Product.cs
+ProductType.cs
+(sysdiagrams.cs)
+Unit(Measure).cs
+
+
+ProductType/ProductTypeID (ID) --> Product/ProductTypeID
+Product/ProductID (ID) --> MaterialProduct/ProductID
+MaterialProduct/MaterialID (MaterialNameID) --> Material/MaterialID
+Material/TypeID --> MaterialType/MaterialTypeID
+Material/MaterialUnitID --> Unit/UnitID
+
+float:
+ProdTupeCoef (ProdType)
+ProdMinPrice (Prod)
+MaterialQuant (MatProd)
+MatPricePerUnit (Material)
+MaterialQuanStored (Material)
+MaterialMinQuant (Material)
+MaterialQuantPack (Material)
+materialTupeName (MaterialType)
+
+nvarchar100:
+ProductType (ProdType)
+ProductName (Prod)
+materialName (Material)
+MaterialTypeName (MaterialType)
+UnitName(10) (Unit)
+
+char(7):
+ProductNumber (Prod)
+
+
+
+
+
+
+app.xaml.cs
+
+public partial class App : Application
+    {
+        public static Model.Entities DB; //вместо Entities вставить user26
+    }
+
+
+
+
+mainwindow.xaml
+
+ Title="MainWindow" Height="450" Width="800" MinHeight="450" MinWidth="800" MaxHeight="450" MaxWidth="800" Icon="/Resources/Комфорт.ico" Loaded="Window_Loaded">
+    <!-- Основной контейнер -->
+    <Grid Background="White">
+
+        <!-- Определение строк -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <!-- Верхняя панель -->
+            <RowDefinition Height="*"/>
+            <!-- Основное содержимое -->
+            <RowDefinition Height="50"/>
+            <!-- Нижняя панель -->
+        </Grid.RowDefinitions>
+
+        <!-- Верхняя панель -->
+        <Grid Grid.Row="0" Background="#FFFFCF48">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50"/>
+                <!-- Логотип -->
+                <ColumnDefinition Width="4*"/>
+                <!-- Заголовок -->
+                <ColumnDefinition Width="*"/>
+                <!-- Кнопка выхода -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Логотип -->
+            <Image Grid.Column="0" Grid.Row="0" Source="/Resources/Комфорт.png" Stretch="Fill" Margin="2,2,2,2"/>
+
+            <!-- Заголовок -->
+            <TextBlock Grid.Column="1" Text="Список материалов" 
+                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Foreground="DimGray" />
+
+            <!-- Кнопка выхода -->
+            <Button x:Name="btnExit" Click="btnExit_Click_1" Grid.Column="2" Grid.Row="0" 
+                    Content="Выход" Margin="10,10,10,10" Background="#FFA08040" 
+                    Foreground="White" FontSize="15" BorderThickness="0,0,0,0" RenderTransformOrigin="0.5,0.5"/>
+        </Grid>
+
+        <!-- Список материалов -->
+        <ListBox Grid.Row="1" x:Name="lbMaterials" Margin="5" 
+                 d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalContentAlignment="Stretch">
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <!-- Карточка материала -->
+                    <Border BorderThickness="1" BorderBrush="#FFA08040" Margin="5" CornerRadius="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6*"/>
+                                <!-- Описание -->
+                                <ColumnDefinition Width="*"/>
+                                <!-- Количество -->
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Описание материала -->
+                            <StackPanel Grid.Column="0" Orientation="Vertical">
+                                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="15,10,0,0">
+                                   <Run Text="{Binding MaterialType.MaterialType1}" />
+                                   <Run Text="|" />
+                                   <Run Text="{Binding MaterialName}" />
+                                </TextBlock>
+                                <TextBlock Margin="15,0,0,0" Text="{Binding MinQuant}"/>
+                                <TextBlock Text="{Binding QuantStock}" Margin="15,0,0,0"/>
+                                <TextBlock Margin="15,0,0,10">
+                                   <Run Text="Цена: " /> 
+                                    <Run Text="{Binding UnitPrice}" />
+                                   <Run Text="руб." />
+                                   <Run Text="/" />
+                                   <Run Text="{Binding UnitMeasure.UnitMeasure1}" />
+                                   <Run Text="|" />
+                                   <Run Text="{Binding QuantPack}" />
+                                </TextBlock>
+                            </StackPanel>
+
+                            <!-- Количество материала -->
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                              
+                                <TextBlock Margin="10,10,10,10">
+                                   <Run Text="{Binding RequiredCount}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Нижняя панель -->
+        <Grid Grid.Row="2" Background="#FFFFCF48">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <!-- Кнопка добавления -->
+                <ColumnDefinition Width="*"/>
+                <!-- Кнопка просмотра -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопка добавления материала -->
+            <Button x:Name="btnAddMaterial" Click="btnAdd_Click" Grid.Column="0" 
+                    Content="Добавить материал" VerticalAlignment="Center" Margin="10,0,10,0"  
+                    Background="#FFA08040" Height="35" Foreground="White" FontSize="15" 
+                    BorderThickness="0,0,0,0"/>
+
+            <!-- Кнопка просмотра продукции -->
+            <Button x:Name="btnProducts" Grid.Column="1" 
+                    Content="Просмотр продукции" VerticalAlignment="Center" Margin="10,0,10,0"  
+                    Background="#FFA08040" Height="35" Foreground="White" FontSize="15"  
+                    BorderThickness="0,0,0,0"/>
+        </Grid>
+    </Grid>
+
+
+
+
+
+
+
+
+
+mainwindow.xaml.cs
+
+public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+            try
+            {
+                //Установка связи с бд
+                App.DB = new Model.user_28_21_furnitureEntities(); //поменять бд
+                MessageBox.Show("Успешно подключились к БД", "Проверка подключения", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Подключиться к БД не удалось", "Проверка подключения", MessageBoxButton.OK, MessageBoxImage.Error);
+                throw;
+            }
+        }
+
+        private void btnExit_Click_1(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+        
+        private void btnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            //открытие окна в режиме добавления
+            View.EditMaterial editPartnerWindow = new View.EditMaterial(0, null);
+            this.Hide();
+            editPartnerWindow.ShowDialog();
+            this.Show();
+            Window_Loaded(null, null);
+        }
+
+//требуемое количество материалов
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            List<Model.Material> materials = App.DB.Material.ToList();
+
+            foreach (Model.Material material in materials)
+            {
+
+                int idMaterial = material.Id;
+                List<Model.MaterialProduct> invoices = App.DB.MaterialProduct.ToList();
+
+                invoices = invoices.Where(inv => inv.MaterialNameId == idMaterial).ToList();
+                double RequiredCount = 0;
+
+                foreach (Model.MaterialProduct inv in invoices)
+                {
+
+                    RequiredCount += inv.MaterialAmount;
+                }
+
+                material.RequiredCount = RequiredCount;
+
+            }
+            lbMaterials.ItemsSource = materials;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+EditMaterialWindow.xaml
+
+Title="EditMaterialWindow" Height="450" Width="800" MinHeight="450" MinWidth="800" MaxHeight="450" MaxWidth="800" Loaded="Window_Loaded" >
+    <Grid>
+        <!--главный макет-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!--Заголовок-->
+        <Grid Grid.Row="0" Background="#FFFFCF48">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="tbTitle" Grid.Column="1" HorizontalAlignment="Center" Text="Материал" VerticalAlignment="Center" FontSize="20" Foreground="DimGray"/>
+            <Button Name="btnBack"  Grid.Column="2" Content="Назад" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="15" Background="#FFA08040" Margin="5" Click="btnBack_Click"  Foreground="White" />
+
+        </Grid>
+
+        <!--footer-->
+        <Grid Grid.Row="2" Background="#FFFFCF48">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button  Name="btnFixed" Grid.Column="0" Content="Применить изменения" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="15"  Foreground="White" Background="#FFA08040" Margin="250,10" Click="btnFixed_Click"/>
+
+        </Grid>
+
+        <!--центральная часть-->
+        <UniformGrid Grid.Row="1" Rows="8" Margin="0,0,0,32" Grid.RowSpan="2">
+            <TextBlock Text="Тип материала" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Width="192"/>
+            <ComboBox x:Name="tbMaterialTypeId" FontSize="14" VerticalAlignment="Center" Margin="-183,0,5,0"/>
+            <TextBlock Text="Наименование" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Width="192"/>
+            <TextBox x:Name="tbName" FontSize="16" VerticalAlignment="Center" Margin="-183,0,5,0"/>
+            <TextBlock Text="Цена ед.материала" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Width="192"/>
+            <TextBox x:Name="tbUnitPrice" FontSize="16" VerticalAlignment="Center" Margin="-183,0,5,0" ToolTip="Дробное неотрицатиельное число"/>
+            <TextBlock Text="Единица измерения" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Width="192"/>
+            <ComboBox x:Name="tbUnitMeasure" FontSize="16" VerticalAlignment="Center" Margin="-183,0,5,0"/>
+            <TextBlock Text="Количество в упаковке" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Width="192"/>
+            <TextBox x:Name="tbQuantPack" FontSize="16" VerticalAlignment="Center" Margin="-183,0,5,0" MaxLength="16"/>
+            <TextBlock Text="Количество на складе" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Width="192"/>
+            <TextBox x:Name="tbQuantStock" FontSize="16" VerticalAlignment="Center" Margin="-183,0,5,0"/>
+            <TextBlock Text="Минимальное количество" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Width="207" />
+            <TextBox x:Name="tbMinQuant" FontSize="16" VerticalAlignment="Center" Margin="-183,0,5,0" ToolTip="Неотрицатиельное число"/>
+
+        </UniformGrid>
+
+    </Grid>
+
+
+
+
+
+
+
+
+
+
+
+
+EditMaterialWindow.xaml.cs
+
+ public partial class EditMaterial : Window
+    {
+        int mode;
+        Model.Material material;
+        public EditMaterial()
+        {
+            InitializeComponent();
+        }
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+        public EditMaterial(int mode, Model.Material material)
+        {
+            InitializeComponent();
+            this.mode = mode;
+            this.material = material;
+        }
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            List<Model.MaterialType> materialTypes = App.DB.MaterialType.ToList();
+            tbMaterialTypeId.ItemsSource = materialTypes;
+            tbMaterialTypeId.DisplayMemberPath = "MaterialType1";
+            tbMaterialTypeId.SelectedValuePath = "Id";
+            tbMaterialTypeId.SelectedIndex = 0;
+            List<Model.UnitMeasure> uintMeasure = App.DB.UnitMeasure.ToList();
+            tbUnitMeasure.ItemsSource = uintMeasure;
+            tbUnitMeasure.DisplayMemberPath = "UnitMeasure1";
+            tbUnitMeasure.SelectedValuePath = "Id";
+            tbUnitMeasure.SelectedIndex = 0;
+
+            if (mode == 0)
+            {
+                tbTitle.Text = "Добавление материла";
+                btnFixed.Content = "Добавить материала";
+            }
+            else
+            {
+                tbTitle.Text = "Редактирование материала";
+                btnFixed.Content = "Обновить материал";
+                tbMaterialTypeId.SelectedValue = material.Id;
+                tbName.Text = material.MaterialName;
+                tbUnitPrice.Text = material.UnitPrice.ToString();
+                tbQuantStock.Text = material.QuantStock.ToString();
+                tbMinQuant.Text = material.MinQuant.ToString();
+                tbQuantPack.Text = material.QuantPack.ToString();
+            }
+
+        }
+
+        private void btnFixed_Click(object sender, RoutedEventArgs e)
+
+        {
+            // Общая проверка на пустые значения
+            if (string.IsNullOrWhiteSpace(tbName.Text))
+            {
+                ShowErrorMessage("Название материала не может быть пустым.");
+                return;
+            }
+
+            if (tbMaterialTypeId.SelectedValue == null)
+            {
+                ShowErrorMessage("Выберите тип материала.");
+                return;
+            }
+
+            // Проверки числовых значений
+            if (!TryParsePositiveDouble(tbUnitPrice.Text, "Введите корректную цену единицы материала") ||
+                !TryParsePositiveDouble(tbQuantStock.Text, "Введите корректное количество на складе") ||
+                !TryParsePositiveDouble(tbMinQuant.Text, "Введите корректное минимальное количество") ||
+                !TryParsePositiveDouble(tbQuantPack.Text, "Введите корректное количество в упаковке"))
+            {
+                return;
+            }
+
+        }
+
+        // Функция для проверки и вывода сообщения об ошибке
+        private void ShowErrorMessage(string message)
+        {
+            MessageBox.Show(message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        // Функция для проверки числовых значений
+        private bool TryParsePositiveDouble(string input, string errorMessage)
+        {
+            if (!double.TryParse(input, out double result) || result < 0)
+            {
+                ShowErrorMessage(errorMessage);
+                return false;
+            }
+            return true;
+
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+material.cs добаить только расчет скидки  
+
+public partial class Material
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Material()
+        {
+            this.MaterialProduct = new HashSet<MaterialProduct>();
+        }
+    
+        public int MaterialId { get; set; }
+        public string MaterialName { get; set; }
+        public int MaterialTypeId { get; set; }
+        public double MaterialUnitPrice { get; set; }
+        public double MaterialQuanityInStock { get; set; }
+        public double MaterialMinQuantity { get; set; }
+        public double MaterialQuantityInPack { get; set; }
+        public int MaterialMeasUnitId { get; set; }
+    
+        public virtual MaterialType MaterialType { get; set; }
+        public virtual MeasUnit MeasUnit { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MaterialProduct> MaterialProduct { get; set; }
+
+        [NotMapped]
+        public double AmountNeeded { get; set; } //вот это вот
+    }
+
+
+
+
+
+
+
+materialType.cs
+
+public partial class MaterialType
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public MaterialType()
+        {
+            this.Material = new HashSet<Material>();
+        }
+    
+        public int MaterialTypeId { get; set; }
+        public string MaterialTypeName { get; set; }
+        public double MaterialTypeRawMatSpent { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Material> Material { get; set; }
+    }
+
+
+
+
+
+
+
+
+
+
+
+model.context.cs
+
+namespace Production.Model
+{
+    using System;
+    using System.Data.Entity;
+    using System.Data.Entity.Infrastructure;
+    
+    public partial class Entities : DbContext
+    {
+        public Entities()
+            : base("name=Entities")
+        {
+        }
+    
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            throw new UnintentionalCodeFirstException();
+        }
+    
+        public virtual DbSet<Material> Material { get; set; }
+        public virtual DbSet<MaterialProduct> MaterialProduct { get; set; }
+        public virtual DbSet<MaterialType> MaterialType { get; set; }
+        public virtual DbSet<MeasUnit> MeasUnit { get; set; }
+        public virtual DbSet<Product> Product { get; set; }
+        public virtual DbSet<ProductType> ProductType { get; set; }
+    }
+}
